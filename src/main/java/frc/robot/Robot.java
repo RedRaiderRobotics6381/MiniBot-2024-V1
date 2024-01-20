@@ -4,10 +4,12 @@
 
 package frc.robot;
 
+import edu.wpi.first.networktables.NetworkTableInstance;
 //import edu.wpi.first.networktables.NetworkTableInstance;
 // import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -194,6 +196,13 @@ public class Robot extends TimedRobot
   @Override
   public void simulationInit()
   {
+    if(RobotBase.isSimulation()) {
+      NetworkTableInstance inst = NetworkTableInstance.getDefault();
+      inst.stopServer();
+      // Change the IP address in the below function to the IP address you use to connect to the PhotonVision UI.
+      inst.setServer("photonvision.local");
+      inst.startClient4("Robot Simulation");
+   }
   }
 
   /**
