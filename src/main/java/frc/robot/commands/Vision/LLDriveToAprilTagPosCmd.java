@@ -1,6 +1,7 @@
 package frc.robot.commands.Vision;
 
 
+import edu.wpi.first.math.MathUtil;
 //import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 //import edu.wpi.first.math.geometry.Pose3d;
@@ -30,7 +31,7 @@ public class LLDriveToAprilTagPosCmd extends Command
   private final SwerveSubsystem swerveSubsystem;
   private final PIDController   yController;
   private final PIDController   xController;
-  private final PIDController   zController;
+  //private final PIDController   zController;
   private double visionObject;
   private double aprilTagID;
   
@@ -39,16 +40,16 @@ public class LLDriveToAprilTagPosCmd extends Command
     this.swerveSubsystem = swerveSubsystem;
     yController = new PIDController(0.0625, 0.00375, 0.0001);
     xController = new PIDController(.25, 0.01, 0.0001);
-    zController = new PIDController(0.0575,0.0, 0.000);
+    //zController = new PIDController(0.0575,0.0, 0.000);
   //  xController.setIZone(0.5);
   //   zController.setIZone(0.5);
   //   yController.setIZone(0.5);
-    yController.setTolerance(.5);
-    zController.setTolerance(.5);
-    xController.setTolerance(.5);
-    yController.setSetpoint(0.0);
-    xController.setSetpoint(0.0);
-    zController.setSetpoint(0.0);
+    // yController.setTolerance(.5);
+    // zController.setTolerance(.5);
+    // xController.setTolerance(.5);
+    // yController.setSetpoint(0.0);
+    // xController.setSetpoint(0.0);
+    // zController.setSetpoint(0.0);
     // each subsystem used by the command must be passed into the
     // addRequirements() method (which takes a vararg of Subsystem)
     addRequirements(this.swerveSubsystem);
@@ -103,20 +104,20 @@ public class LLDriveToAprilTagPosCmd extends Command
 
         // This is the value in meters per second that is used to drive the robot
 
-        // double translationValy = MathUtil.clamp(yController.calculate(tx, 0.0), -1.0 , 1.0); //* throttle, 2.5 * throttle);
-        // double translationValx = MathUtil.clamp(xController.calculate(ty, 0.0), -1.0 , 1.0); //* throttle, 2.5 * throttle);
+        double translationValx = MathUtil.clamp(-xController.calculate(target[0], 0.0), -.5 , .5); //* throttle, 2.5 * throttle);
+        double translationValy = MathUtil.clamp(yController.calculate(target[2], 0.0), -.5 , .5); //* throttle, 2.5 * throttle);
         // double translationValz = MathUtil.clamp(zController.calculate(tz, 0.0), -2.0 , 2.0); //* throttle, 2.5 * throttle);
 
         // double translationValy = yController.calculate(tx, 0.0); //* throttle, 2.5 * throttle);
         // double translationValx = xController.calculate(ty, 0.0); //* throttle, 2.5 * throttle);
         // double translationValz = zController.calculate(tz, 0.0); //* throttle, 2.5 * throttle);
         SmartDashboard.putNumber("Y Translation Value", target[0]);
-        SmartDashboard.putNumber("X Translation Value", target[1]);
+        SmartDashboard.putNumber("X Translation Value", target[2]);
         //SmartDashboard.putNumber("Z Translation Value", translationValz);
 
 
         
-        swerveSubsystem.drive(new Translation2d(-target[0], -target[1]), 0.0, false);
+        swerveSubsystem.drive(new Translation2d(translationValx, translationValy), 0.0, false);
         
        // swerveSubsystem.setChassisSpeeds(new ChassisSpeeds(-translationValx, 0.0, translationValz));
         //swerveSubsystem.setChassisSpeeds(new ChassisSpeeds(0, translationValy,-translationValx));
