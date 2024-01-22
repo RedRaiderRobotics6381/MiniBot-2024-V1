@@ -1,21 +1,12 @@
 package frc.robot.commands.Vision;
 
-
 import edu.wpi.first.math.MathUtil;
-//import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-//import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation2d;
-//import edu.wpi.first.math.geometry.Translation2d;
-//import edu.wpi.first.math.geometry.Translation2d;
-//import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+// import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
-//import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import edu.wpi.first.wpilibj.XboxController;
@@ -27,33 +18,33 @@ import edu.wpi.first.wpilibj.XboxController;
  */
 public class LLDriveToAprilTagPosCmd extends Command
 {
-
   private final SwerveSubsystem swerveSubsystem;
-  private final PIDController   yController;
   private final PIDController   xController;
-  //private final PIDController   zController;
+  private final PIDController   yController;
+  private final PIDController   zController;
   private double visionObject;
   private double aprilTagID;
   
   public LLDriveToAprilTagPosCmd(SwerveSubsystem swerveSubsystem, double visionObject, double aprilTagID )
   {
-    this.swerveSubsystem = swerveSubsystem;
-    yController = new PIDController(0.0625, 0.00375, 0.0001);
-    xController = new PIDController(.25, 0.01, 0.0001);
-    //zController = new PIDController(0.0575,0.0, 0.000);
-  //  xController.setIZone(0.5);
-  //   zController.setIZone(0.5);
-  //   yController.setIZone(0.5);
-    // yController.setTolerance(.5);
-    // zController.setTolerance(.5);
-    // xController.setTolerance(.5);
-    // yController.setSetpoint(0.0);
-    // xController.setSetpoint(0.0);
-    // zController.setSetpoint(0.0);
+    
     // each subsystem used by the command must be passed into the
     // addRequirements() method (which takes a vararg of Subsystem)
+    this.swerveSubsystem = swerveSubsystem;
     addRequirements(this.swerveSubsystem);
-    this.visionObject = visionObject;
+    this.visionObject = visionObject;    
+    
+    xController = new PIDController(.25, 0.01, 0.0001);
+    yController = new PIDController(0.0625, 0.00375, 0.0001);
+    zController = new PIDController(0.0575,0.0, 0.000);
+
+    xController.setIZone(0.1); //0.1 meters
+    yController.setIZone(0.1); //0.1 meters
+    zController.setIZone(0.5); //0.5 degrees
+
+    xController.setTolerance(.01); //0.01 meters
+    yController.setTolerance(.01); //0.01 meters
+    zController.setTolerance(.5); //0.5 degrees
     
   }
 
@@ -63,9 +54,9 @@ public class LLDriveToAprilTagPosCmd extends Command
   @Override
   public void initialize()
   {
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(visionObject);
-
-
+  
+    LimelightHelpers.setPipelineIndex("", visionObject);
+  
   }
 
   /**
@@ -75,62 +66,38 @@ public class LLDriveToAprilTagPosCmd extends Command
   @Override
   public void execute()
   {
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    boolean tv = LimelightHelpers.getTV("");
+    double fid = LimelightHelpers.getFiducialID("");
     
+    if (tv == true){ //if the limelight sees a target
+      if (fid == aprilTagID){ //if the limelight sees the target we want
+        RobotContainer.driverXbox.setRumble(XboxController.RumbleType.kBothRumble, 0.25); //rumble the controller
 
-    NetworkTableEntry targetValid = table.getEntry("tv"); 
-    NetworkTableEntry targetFID = table.getEntry("FID");
-    //SmartDashboard.putBoolean("At Tolerance", yController.atSetpoint());
-    double tv = targetValid.getDouble(0.0);
-    double fid = targetFID.getDouble(0);
+        //tx is the angle that the limelight sees the target at
+        double tz = LimelightHelpers.getTX("");
 
-    // SmartDashboard.putNumber("Pipeline",tv);
-    // SmartDashboard.putBoolean("TV", tv);
-    if (tv == 1){
-      if (fid == aprilTagID){
-        RobotContainer.driverXbox.setRumble(XboxController.RumbleType.kBothRumble, 0.25);
-        // NetworkTableEntry targetX = table.getEntry("tx");
-        // NetworkTableEntry targetY = table.getEntry("ty");
-        // NetworkTableEntry targetZ = table.getEntry("tx");
-        // double tx = targetX.getDouble(0.0);
-        // double ty = targetY.getDouble(0.0);
-        // double tz = targetZ.getDouble(0.0);
-        // double tx = LimelightHelpers.getTX("");
-        // double ty = LimelightHelpers.getTY("");
-        // double tz = LimelightHelpers.getTX("");
+        //target[0] is x, target[1] is y, target[2] is z in meters
         double target[] = LimelightHelpers.getTargetPose_CameraSpace("");
 
-        //double throttle = RobotContainer.driverXbox.getLeftTriggerAxis();
-
         // This is the value in meters per second that is used to drive the robot
+        double translationValx = MathUtil.clamp(-xController.calculate(target[0], 0.0), -.5 , .5);
+        double translationValy = MathUtil.clamp(yController.calculate(target[2], 1.0), -.5 , .5); 
+        double translationValz = MathUtil.clamp(zController.calculate(tz, 0.0), -2.0 , 2.0); 
 
-        double translationValx = MathUtil.clamp(-xController.calculate(target[0], 0.0), -.5 , .5); //* throttle, 2.5 * throttle);
-        double translationValy = MathUtil.clamp(yController.calculate(target[2], 0.0), -.5 , .5); //* throttle, 2.5 * throttle);
-        // double translationValz = MathUtil.clamp(zController.calculate(tz, 0.0), -2.0 , 2.0); //* throttle, 2.5 * throttle);
-
-        // double translationValy = yController.calculate(tx, 0.0); //* throttle, 2.5 * throttle);
-        // double translationValx = xController.calculate(ty, 0.0); //* throttle, 2.5 * throttle);
-        // double translationValz = zController.calculate(tz, 0.0); //* throttle, 2.5 * throttle);
         SmartDashboard.putNumber("Y Translation Value", target[0]);
         SmartDashboard.putNumber("X Translation Value", target[2]);
-        //SmartDashboard.putNumber("Z Translation Value", translationValz);
+        SmartDashboard.putNumber("Z Translation Value", translationValz);
 
-
-        
-        swerveSubsystem.drive(new Translation2d(translationValx, translationValy), 0.0, false);
-        
-       // swerveSubsystem.setChassisSpeeds(new ChassisSpeeds(-translationValx, 0.0, translationValz));
-        //swerveSubsystem.setChassisSpeeds(new ChassisSpeeds(0, translationValy,-translationValx));
+        //swerveSubsystem.drive(new Translation2d(translationValx, translationValy), translationValz, false);        
+        swerveSubsystem.setChassisSpeeds(new ChassisSpeeds(translationValx, translationValy, translationValz)); //drive the robot
       }
     }
     else{
-      //swerveSubsystem.drive(new Translation2d(0, 0), 0.0, false, false);
-      end(true);
-    }
       
-        // double translationVal = MathUtil.clamp(controller.calculate(swerveSubsystem.getPitch().getDegrees(), 0.0), -0.5,
-      //                                        0.5);
-      // swerveSubsystem.drive(new Translation2d(translationVal, 0.0), 0.0, true, false);
+      end(true);
+
+    }
+  
   }
 
   /**
@@ -149,7 +116,7 @@ public class LLDriveToAprilTagPosCmd extends Command
   @Override
   public boolean isFinished()
   {
-    return yController.atSetpoint() && xController.atSetpoint();
+    return xController.atSetpoint() && yController.atSetpoint() && zController.atSetpoint(); //if the robot is at the setpoint
   }
 
   /**
@@ -162,7 +129,9 @@ public class LLDriveToAprilTagPosCmd extends Command
   @Override
   public void end(boolean interrupted)
   {
+
     //swerveSubsystem.lock();
     RobotContainer.driverXbox.setRumble(XboxController.RumbleType.kBothRumble, 0);
+
   }
 }
