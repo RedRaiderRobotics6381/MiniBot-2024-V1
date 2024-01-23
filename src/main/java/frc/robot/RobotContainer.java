@@ -92,12 +92,12 @@ public class RobotContainer
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
         () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
         () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> driverXbox.getRawAxis(4));
+        () -> MathUtil.applyDeadband(driverXbox.getRawAxis(4), OperatorConstants.RIGHT_X_DEADBAND));
 
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
         () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
         () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> driverXbox.getRawAxis(4));
+        () -> MathUtil.applyDeadband(driverXbox.getRawAxis(4), OperatorConstants.RIGHT_X_DEADBAND));
 
 
     
@@ -107,7 +107,8 @@ public class RobotContainer
                                                                                                     OperatorConstants.LEFT_Y_DEADBAND),
                                                                          () -> MathUtil.applyDeadband(-driverXbox.getLeftX(),
                                                                                                       OperatorConstants.LEFT_X_DEADBAND),
-                                                                         () -> -driverXbox.getRightX());
+                                                                         () -> MathUtil.applyDeadband(driverXbox.getRawAxis(4),
+                                                                                                      OperatorConstants.RIGHT_X_DEADBAND));
 
 
     //drivebase.setDefaultCommand(!RobotBase.isSimulation() ? closedFieldAbsoluteDriveAng : closedFieldAbsoluteDriveAng);
