@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.subsystems.Secondary.ArmRotateSubsystem;
+//import frc.robot.subsystems.Secondary.ArmRotateSubsystem;
 
 import java.io.File;
 import java.io.IOException;
@@ -143,7 +143,7 @@ public class Robot extends TimedRobot
     }
     m_robotContainer.setDriveMode();
     //m_robotContainer.setMotorBrake(true);
-    ArmRotateSubsystem.ArmRotateSetpoint = 90;
+    //ArmRotateSubsystem.ArmRotateSetpoint = 90;
 
     LimelightHelpers.setCameraMode_Processor("null");
     LimelightHelpers.setLEDMode_ForceOn("");
@@ -161,11 +161,11 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
-    if(RobotContainer.engineerXbox.getRightY() > 0.1 || RobotContainer.engineerXbox.getRightY() < -0.1){
-      ArmRotateSubsystem.m_armPIDController.setReference((ArmRotateSubsystem.ArmEncoder.getPosition()) +
-                                                        (RobotContainer.engineerXbox.getRightY() * 20),
-                                                        CANSparkMax.ControlType.kSmartMotion);                                                   
-    }
+    // if(RobotContainer.engineerXbox.getRightY() > 0.1 || RobotContainer.engineerXbox.getRightY() < -0.1){
+    //   ArmRotateSubsystem.m_armPIDController.setReference((ArmRotateSubsystem.ArmEncoder.getPosition()) +
+    //                                                     (RobotContainer.engineerXbox.getRightY() * 20),
+    //                                                     CANSparkMax.ControlType.kSmartMotion);                                                   
+    // }
   }
 
   @Override

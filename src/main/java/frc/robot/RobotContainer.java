@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.Constants.ArmConstants;
+//import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Vision.LLDriveToAprilTagPosCmd;
 //import frc.robot.commands.Vision.LLDriveToAprilTagVelCmd;
@@ -29,8 +29,8 @@ import frc.robot.commands.swervedrive.drivebase.AbsoluteFieldDriveAng;
 //import frc.robot.commands.swervedrive.drivebase.AbsoluteFieldDriveAng;
 //import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
 //import frc.robot.commands.swervedrive.drivebase.TeleopDrive;
-import frc.robot.subsystems.Secondary.ArmIntakeSubsystem;
-import frc.robot.subsystems.Secondary.ArmRotateSubsystem;
+// import frc.robot.subsystems.Secondary.ArmIntakeSubsystem;
+// import frc.robot.subsystems.Secondary.ArmRotateSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 
@@ -58,8 +58,8 @@ public class RobotContainer
   public final static XboxController engineerXbox = new XboxController(1);
   private final SendableChooser<Command> autoChooser;
   
-  ArmIntakeSubsystem armIntakeSubsystem = new ArmIntakeSubsystem();
-  ArmRotateSubsystem armRotateSubsystem = new ArmRotateSubsystem();
+  // ArmIntakeSubsystem armIntakeSubsystem = new ArmIntakeSubsystem();
+  // ArmRotateSubsystem armRotateSubsystem = new ArmRotateSubsystem();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -68,11 +68,11 @@ public class RobotContainer
   {
     // Register Named Commands
     NamedCommands.registerCommand("autoBalance", new AutoBalanceCommand(drivebase));
-    NamedCommands.registerCommand("armDown", armRotateSubsystem.rotatePosCommand(ArmConstants.posIntake));
-    NamedCommands.registerCommand("armUp", armRotateSubsystem.rotatePosCommand(ArmConstants.posDrive));
-    NamedCommands.registerCommand("armIntake", armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedIn));
-    NamedCommands.registerCommand("armHold", armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedHold));
-    NamedCommands.registerCommand("armOut", armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedOut));
+    // NamedCommands.registerCommand("armDown", armRotateSubsystem.rotatePosCommand(ArmConstants.posIntake));
+    // NamedCommands.registerCommand("armUp", armRotateSubsystem.rotatePosCommand(ArmConstants.posDrive));
+    // NamedCommands.registerCommand("armIntake", armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedIn));
+    // NamedCommands.registerCommand("armHold", armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedHold));
+    // NamedCommands.registerCommand("armOut", armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedOut));
     NamedCommands.registerCommand("alignCone", new LLDriveToObjectCmd(drivebase, 0));
     NamedCommands.registerCommand("alignCube", new LLDriveToObjectCmd(drivebase, 1));
     
@@ -141,21 +141,21 @@ public class RobotContainer
     //Axis 4 is right joystick y forward and back
     //Axis 5 is right trigger
 
-    new JoystickButton(driverXbox, 1).onTrue((new InstantCommand(drivebase::zeroGyro)));
+    new JoystickButton(driverXbox, 4).onTrue((new InstantCommand(drivebase::zeroGyro)));
     //new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
     //new JoystickButton(driverXbox, 3).whileTrue(new RepeatCommand(new InstantCommand(drivebase::lock, drivebase)));
     //new JoystickButton(driverXbox, 2).whileTrue(new AutoBalanceCommand(drivebase)); 
 
-    new JoystickButton(engineerXbox, 1).onTrue(armRotateSubsystem.rotatePosCommand(ArmConstants.posDrive)); // 180 is vertical 
-    new JoystickButton(engineerXbox, 4).onTrue(armRotateSubsystem.rotatePosCommand(ArmConstants.posIntake)); //90 is horizontal 
+    // new JoystickButton(engineerXbox, 1).onTrue(armRotateSubsystem.rotatePosCommand(ArmConstants.posDrive)); // 180 is vertical 
+    // new JoystickButton(engineerXbox, 4).onTrue(armRotateSubsystem.rotatePosCommand(ArmConstants.posIntake)); //90 is horizontal 
 
-    //new JoystickButton(engineerXbox,3 ).whileTrue(new ArmIntakeInCmd(armIntakeSubsystem));
-    new JoystickButton(engineerXbox,3 ).whileTrue(armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedIn));
-    new JoystickButton(engineerXbox, 3).onFalse(armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedHold));
-    new JoystickButton(engineerXbox,2 ).whileTrue(armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedOut));
-    new JoystickButton(engineerXbox, 2).onFalse(armIntakeSubsystem.ArmIntakeCmd(0));
+    // //new JoystickButton(engineerXbox,3 ).whileTrue(new ArmIntakeInCmd(armIntakeSubsystem));
+    // new JoystickButton(engineerXbox,3 ).whileTrue(armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedIn));
+    // new JoystickButton(engineerXbox, 3).onFalse(armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedHold));
+    // new JoystickButton(engineerXbox,2 ).whileTrue(armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedOut));
+    // new JoystickButton(engineerXbox, 2).onFalse(armIntakeSubsystem.ArmIntakeCmd(0));
 
-    //new JoystickButton(engineerXbox,7 ).whileTrue(new DriveGyro180Cmd(swerveSubsystem));
+    // //new JoystickButton(engineerXbox,7 ).whileTrue(new DriveGyro180Cmd(swerveSubsystem));
 
     // new JoystickButton(driverXbox, 5).whileTrue(new LLDriveToObjectCmd(drivebase, 0));
     new JoystickButton(driverXbox, 5).whileTrue(new LLDriveToAprilTagPosCmd(drivebase, 0, 7));
