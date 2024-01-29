@@ -1,26 +1,64 @@
 {
   "version": 1.0,
-  "startingPose": null,
+  "startingPose": {
+    "position": {
+      "x": 0.0,
+      "y": 0.0
+    },
+    "rotation": 0
+  },
   "command": {
     "type": "sequential",
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Part1"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Part1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "armDown"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "armIntake"
+                }
+              }
+            ]
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "armIntake"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Part2"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Part2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "armUp"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "armOut"
+                }
+              }
+            ]
           }
         }
       ]

@@ -1,49 +1,44 @@
 package frc.robot.commands.Vision;
 
-
-import edu.wpi.first.math.MathUtil;
+import org.photonvision.PhotonCamera;
+import org.photonvision.common.hardware.VisionLEDMode;
+import org.photonvision.targeting.PhotonTrackedTarget;
+//import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
-//import edu.wpi.first.math.geometry.Translation2d;
-//import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.math.geometry.Translation2d;
+//import edu.wpi.first.math.kinematics.ChassisSpeeds;
+//import edu.wpi.first.networktables.NetworkTableEntry;
+//import edu.wpi.first.networktables.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-//import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import edu.wpi.first.wpilibj.XboxController;
 
 
-/**
- * Auto Balance command using a simple PID controller. Created by Team 3512
- * https://github.com/frc3512/Robot-2023/blob/main/src/main/java/frc3512/robot/commands/AutoBalance.java
- */
-public class LLDriveToObjectCmd extends Command
+
+public class DriveToObjectCmd extends Command
 {
 
   private final SwerveSubsystem swerveSubsystem;
-  private final PIDController   yController;
   private final PIDController   xController;
+  private final PIDController   yController;
   private double visionObject;
-  
+  PhotonCamera camera = new PhotonCamera("photonvision");
 
-  public LLDriveToObjectCmd(SwerveSubsystem swerveSubsystem, double visionObject)
+  public DriveToObjectCmd(SwerveSubsystem swerveSubsystem, double visionObject)
   {
     this.swerveSubsystem = swerveSubsystem;
     yController = new PIDController(0.0625, 0.00375, 0.0001);
-    xController = new PIDController(.25, 0.01, 0.0001);
-    yController.setTolerance(.5);
-    xController.setTolerance(.5);
+    yController.setTolerance(1);
     yController.setSetpoint(0.0);
-    xController.setSetpoint(0.0);
+    xController = new PIDController(.25, 0.01, 0.0001);
+    xController.setTolerance(1);
+    xController.setSetpoint(1.0);
     // each subsystem used by the command must be passed into the
     // addRequirements() method (which takes a vararg of Subsystem)
     addRequirements(this.swerveSubsystem);
     this.visionObject = visionObject;
-    
   }
 
   /**
@@ -52,8 +47,9 @@ public class LLDriveToObjectCmd extends Command
   @Override
   public void initialize()
   {
-    NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(visionObject);
-
+    camera.setLED(VisionLEDMode.kOn);
+    camera.setPipelineIndex((int)visionObject);
+    camera.setDriverMode(false);
 
   }
 
@@ -64,40 +60,33 @@ public class LLDriveToObjectCmd extends Command
   @Override
   public void execute()
   {
-    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    var result = camera.getLatestResult();  // Get the latest result from PhotonVision
+    boolean hasTargets = result.hasTargets(); // Check if the latest result has any targets.
+    PhotonTrackedTarget target = result.getBestTarget();
+    //int targetID = result.
     
+    while (hasTargets == true) {
+      RobotContainer.driverXbox.setRumble(XboxController.RumbleType.kLeftRumble, 0.25);
+      Double TX = target.getYaw();
+      SmartDashboard.putString("PhotoVision Target", "True");
+      SmartDashboard.putNumber("PhotonVision Yaw", TX);
+      Double translationValY = yController.calculate(TX, 0);
+      SmartDashboard.putNumber("TranslationY", translationValY);
 
-    NetworkTableEntry targetValid = table.getEntry("tv"); 
-    //SmartDashboard.putBoolean("At Tolerance", yController.atSetpoint());
-    double tv = targetValid.getDouble(0.0);
+      if (visionObject == 0) {
+          RobotContainer.driverXbox.setRumble(XboxController.RumbleType.kLeftRumble, 0.25);
+          swerveSubsystem.drive(new Translation2d(0.0, translationValY * RobotContainer.driverXbox.getLeftTriggerAxis()),
+                                            0,
+                                            false);
+        }
 
-    // SmartDashboard.putNumber("Pipeline",tv);
-    // SmartDashboard.putBoolean("TV", tv);
-    if (tv == 1){
-      RobotContainer.driverXbox.setRumble(XboxController.RumbleType.kBothRumble, 0.25);
-      NetworkTableEntry targetX = table.getEntry("tx");
-      NetworkTableEntry targetY = table.getEntry("ty");
-      double tx = targetX.getDouble(0.0);
-      double ty = targetY.getDouble(0.0);
-
-      //double throttle = RobotContainer.driverXbox.getLeftTriggerAxis();
-
-      // This is the value in meters per second that is used to drive the robot
-
-      double translationValy = MathUtil.clamp(yController.calculate(tx, 0.0), -.5 , .5); //* throttle, 2.5 * throttle);
-      double translationValx = MathUtil.clamp(xController.calculate(ty, 0.0), -.5 , .5); //* throttle, 2.5 * throttle);
-      SmartDashboard.putNumber("Y Translation Value", translationValy);
-      SmartDashboard.putNumber("X Translation Value", translationValx);
-      
-      //swerveSubsystem.drive(new Translation2d(-translationValx, translationValy), 0.0, false, false);
-      swerveSubsystem.setChassisSpeeds(new ChassisSpeeds(-translationValx, translationValy,0.0));
-      //swerveSubsystem.setChassisSpeeds(new ChassisSpeeds(0, translationValy,-translationValx));
-
+      if (visionObject == 1) {
+          RobotContainer.driverXbox.setRumble(XboxController.RumbleType.kRightRumble, 0.25);
+          swerveSubsystem.drive(new Translation2d(0.0, translationValY * RobotContainer.driverXbox.getRightTriggerAxis()),
+                                            0,
+                                            false);
+        }
     }
-    else{
-      //swerveSubsystem.drive(new Translation2d(0, 0), 0.0, false, false);
-      end(true);
-      }
     
       // double translationVal = MathUtil.clamp(controller.calculate(swerveSubsystem.getPitch().getDegrees(), 0.0), -0.5,
     //                                        0.5);
@@ -120,7 +109,7 @@ public class LLDriveToObjectCmd extends Command
   @Override
   public boolean isFinished()
   {
-    return yController.atSetpoint() && xController.atSetpoint();
+    return xController.atSetpoint() && yController.atSetpoint();
   }
 
   /**
@@ -133,7 +122,7 @@ public class LLDriveToObjectCmd extends Command
   @Override
   public void end(boolean interrupted)
   {
-    swerveSubsystem.lock();
+    //swerveSubsystem.lock();
     RobotContainer.driverXbox.setRumble(XboxController.RumbleType.kBothRumble, 0);
   }
 }

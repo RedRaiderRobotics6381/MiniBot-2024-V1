@@ -4,22 +4,25 @@
 
 package frc.robot;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
-//import edu.wpi.first.networktables.NetworkTableInstance;
-// import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.AprilTagConstants;
 //import frc.robot.subsystems.Secondary.ArmRotateSubsystem;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Optional;
 
-import com.revrobotics.CANSparkMax;
+import org.photonvision.PhotonCamera;
+import org.photonvision.common.hardware.VisionLEDMode;
+
+//import com.revrobotics.CANSparkMax;
 
 import swervelib.parser.SwerveParser;
 
@@ -37,6 +40,8 @@ public class Robot extends TimedRobot
   private RobotContainer m_robotContainer;
 
   private Timer disabledTimer;
+  PhotonCamera camera = new PhotonCamera("photonvision");
+  DigitalInput aSensor = new DigitalInput(0);
 
   public Robot()
   {
@@ -61,9 +66,28 @@ public class Robot extends TimedRobot
     // Create a timer to disable motor brake a few seconds after disable.  This will let the robot stop
     // immediately when disabled, but then also let it be pushed more 
     disabledTimer = new Timer();
-    LimelightHelpers.setLEDMode_ForceOff("");
-    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);//Sets limelight to LED off
+    //LimelightHelpers.setLEDMode_ForceOff("");
+    camera.setLED(VisionLEDMode.kOff);
     DriverStation.silenceJoystickConnectionWarning(true); // Disable joystick connection warning
+    Optional<Alliance> allianceColor = DriverStation.getAlliance();
+    if (allianceColor.isPresent()) {
+        if (allianceColor.get() == Alliance.Red) {
+          AprilTagConstants.ampID     = 5;
+          AprilTagConstants.speakerID = 4;
+          AprilTagConstants.stageIDA  = 13;
+          AprilTagConstants.stageIDB  = 12;
+          AprilTagConstants.stageIDC  = 11;
+        }
+        if (allianceColor.get() == Alliance.Blue) {
+          AprilTagConstants.ampID     = 6;
+          AprilTagConstants.speakerID = 7;
+          AprilTagConstants.stageIDA  = 14;
+          AprilTagConstants.stageIDB  = 15;
+          AprilTagConstants.stageIDC  = 16;
+        }
+      }
+    boolean aSensorState = aSensor.get();
+    //System.out.println(aSensorState);
   }
 
   /**
@@ -90,8 +114,8 @@ public class Robot extends TimedRobot
   public void disabledInit()
   {
     m_robotContainer.setMotorBrake(true);
-    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(1);//Sets limelight to LED off
-    LimelightHelpers.setLEDMode_ForceOff("");
+    camera.setLED(VisionLEDMode.kOff);
+    //LimelightHelpers.setLEDMode_ForceOff("");
     disabledTimer.reset();
     disabledTimer.start();
   }
@@ -113,6 +137,7 @@ public class Robot extends TimedRobot
   public void autonomousInit()
   {
     m_robotContainer.setMotorBrake(true);
+    camera.setLED(VisionLEDMode.kDefault);
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -145,14 +170,13 @@ public class Robot extends TimedRobot
     //m_robotContainer.setMotorBrake(true);
     //ArmRotateSubsystem.ArmRotateSetpoint = 90;
 
-    LimelightHelpers.setCameraMode_Processor("null");
-    LimelightHelpers.setLEDMode_ForceOn("");
-    LimelightHelpers.setPipelineIndex("",0);
-    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("camMode").setNumber(0); //Sets limelight to vision processing mode
-    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("ledMode").setNumber(3); //Sets limelight to LED on
-    // NetworkTableInstance.getDefault().getTable("limelight").getEntry("pipeline").setNumber(0); //Sets limelight to default pipeline
+    camera.setDriverMode(false);
+    camera.setLED(VisionLEDMode.kDefault);
+    camera.setPipelineIndex(0);
 
-
+    // LimelightHelpers.setCameraMode_Processor("null");
+    // LimelightHelpers.setLEDMode_ForceOn("");
+    // LimelightHelpers.setPipelineIndex("",0);
   }
 
   /**
@@ -196,13 +220,6 @@ public class Robot extends TimedRobot
   @Override
   public void simulationInit()
   {
-    if(RobotBase.isSimulation()) {
-      NetworkTableInstance inst = NetworkTableInstance.getDefault();
-      inst.stopServer();
-      // Change the IP address in the below function to the IP address you use to connect to the PhotonVision UI.
-      inst.setServer("photonvision.local");
-      inst.startClient4("Robot Simulation");
-   }
   }
 
   /**
