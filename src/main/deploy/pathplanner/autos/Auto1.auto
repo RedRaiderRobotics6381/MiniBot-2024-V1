@@ -12,53 +12,15 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Part1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "armDown"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "armIntake"
-                }
-              }
-            ]
+            "pathName": "Part1"
           }
         },
         {
-          "type": "parallel",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Part2"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "armUp"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "armOut"
-                }
-              }
-            ]
+            "pathName": "Part2"
           }
         }
       ]

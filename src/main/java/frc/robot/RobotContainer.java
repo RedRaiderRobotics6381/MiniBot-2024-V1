@@ -73,12 +73,6 @@ public class RobotContainer
     configureBindings();
     
     // Register Named Commands
-    // NamedCommands.registerCommand("autoBalance", new AutoBalanceCommand(drivebase));
-    // NamedCommands.registerCommand("armDown", armRotateSubsystem.rotatePosCommand(ArmConstants.posIntake));
-    // NamedCommands.registerCommand("armUp", armRotateSubsystem.rotatePosCommand(ArmConstants.posDrive));
-    // NamedCommands.registerCommand("armIntake", armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedIn));
-    // NamedCommands.registerCommand("armHold", armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedHold));
-    // NamedCommands.registerCommand("armOut", armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedOut));
     NamedCommands.registerCommand("alignSpeaker", new DriveToAprilTagPosCmd(photonCamera, drivebase, 0, AprilTagConstants.speakerID));
     NamedCommands.registerCommand("alignAmp", new DriveToAprilTagPosCmd(photonCamera, drivebase, 0, AprilTagConstants.ampID));
     NamedCommands.registerCommand("alignNote", new DriveToObjectCmd(drivebase, 1));
@@ -88,55 +82,23 @@ public class RobotContainer
     
     SmartDashboard.putData("Auto Chooser", autoChooser);
 
-    // AbsoluteDriveAdv closedAbsoluteDriveAdv = new AbsoluteDriveAdv(drivebase,
-    //                                                                () -> MathUtil.applyDeadband(-driverXbox.getLeftY(),
-    //                                                                                             OperatorConstants.LEFT_Y_DEADBAND),
-    //                                                                () -> MathUtil.applyDeadband(-driverXbox.getLeftX(),
-    //                                                                                             OperatorConstants.LEFT_X_DEADBAND),
-    //                                                                () -> MathUtil.applyDeadband(driverXbox.getRawAxis(4),
-    //                                                                                             OperatorConstants.RIGHT_X_DEADBAND),
-    //                                                                driverXbox.getPOV());
-
-    // // Applies deadbands and inverts controls because joysticks
-    // // are back-right positive while robot
-    // // controls are front-left positive
-    // // left stick controls translation
-    // // right stick controls the desired angle NOT angular rotation
-    // Command driveFieldOrientedDirectAngle = drivebase.driveCommand(
-    //     () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-    //     () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-    //     () -> driverXbox.getRightX(),
-    //     () -> driverXbox.getRightY());
-
     // Applies deadbands and inverts controls because joysticks
     // are back-right positive while robot
     // controls are front-left positive
     // left stick controls translation
     // right stick controls the angular velocity of the robot
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> MathUtil.applyDeadband(-driverXbox.getRawAxis(4), OperatorConstants.RIGHT_X_DEADBAND));
+        () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND)*.75,
+        () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND)*.75,
+        () -> MathUtil.applyDeadband(-driverXbox.getRawAxis(4), OperatorConstants.RIGHT_X_DEADBAND)*.75);
 
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
         () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
         () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
         () -> MathUtil.applyDeadband(driverXbox.getRawAxis(4), OperatorConstants.RIGHT_X_DEADBAND));
 
-    // AbsoluteFieldDriveAng closedFieldAbsoluteDriveAng = new AbsoluteFieldDriveAng(drivebase,
-    //                                                                   () ->
-    //                                                                       MathUtil.applyDeadband(-driverXbox.getLeftY(),
-    //                                                                                             OperatorConstants.LEFT_Y_DEADBAND),
-    //                                                                   () -> MathUtil.applyDeadband(-driverXbox.getLeftX(),
-    //                                                                                               OperatorConstants.LEFT_X_DEADBAND),
-    //                                                                   () -> MathUtil.applyDeadband(driverXbox.getRawAxis(4),
-    //                                                                                               OperatorConstants.RIGHT_X_DEADBAND));
-
-
     drivebase.setDefaultCommand(
         !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
-        //!RobotBase.isSimulation() ? closedAbsoluteDriveAdv : closedAbsoluteDriveAdv);
-        //!RobotBase.isSimulation() ? closedFieldAbsoluteDriveAng : closedFieldAbsoluteDriveAng);
   }
 
   /**
