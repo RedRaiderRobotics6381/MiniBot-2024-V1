@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
+import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
 import java.io.File;
 import java.util.function.DoubleSupplier;
@@ -44,8 +45,9 @@ public class SwerveSubsystem extends SubsystemBase
   /**
    * Maximum speed of the robot in meters per second, used to limit acceleration.
    */
-  public        double      maximumSpeed = Units.feetToMeters(1);
-
+   //public        double      maximumSpeed = Units.feetToMeters(14.5);
+  public        double      maximumSpeed = Units.feetToMeters(Constants.Drivebase.Max_Speed);
+  
   /**
    * Initialize {@link SwerveDrive} with the directory provided.
    *
@@ -305,6 +307,7 @@ public Command sysIdAngleMotorCommand() {
   @Override
   public void periodic()
   {
+    swerveDrive.setMaximumSpeed(maximumSpeed);
   }
 
   @Override
