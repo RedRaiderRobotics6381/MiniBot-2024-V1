@@ -13,17 +13,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.AprilTagConstants;
-//import frc.robot.subsystems.Secondary.ArmRotateSubsystem;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
-
 import org.photonvision.PhotonCamera;
 import org.photonvision.common.hardware.VisionLEDMode;
-
-//import com.revrobotics.CANSparkMax;
-
 import swervelib.parser.SwerveParser;
 
 /**
@@ -86,7 +80,7 @@ public class Robot extends TimedRobot
           AprilTagConstants.stageIDC  = 16;
         }
       }
-    boolean aSensorState = aSensor.get();
+    //boolean aSensorState = aSensor.get();
     //System.out.println(aSensorState);
   }
 
@@ -185,34 +179,6 @@ public class Robot extends TimedRobot
   @Override
   public void teleopPeriodic()
   {
-    // if(RobotContainer.engineerXbox.getRightY() > 0.1 || RobotContainer.engineerXbox.getRightY() < -0.1){
-    //   ArmRotateSubsystem.m_armPIDController.setReference((ArmRotateSubsystem.ArmEncoder.getPosition()) +
-    //                                                     (RobotContainer.engineerXbox.getRightY() * 20),
-    //                                                     CANSparkMax.ControlType.kSmartMotion);                                                   
-    // }
-    if (RobotContainer.driverXbox.getRawButton(5) == true && RobotContainer.driverXbox.getRawButton(6) == true){
-      System.out.println("HighSpd");
-      //drivebase.maximumSpeed = Units.feetToMeters(14.5);
-      //Constants.Drivebase.Max_Speed_Multiplier = 1;
-      Constants.Drivebase.Max_Speed = 14.5;      
-    }
-    if (RobotContainer.driverXbox.getRawButton(5) == true && RobotContainer.driverXbox.getRawButton(6) == false){
-      System.out.println("MedSpd");
-      //drivebase.maximumSpeed = Units.feetToMeters(12.325);
-      //Constants.Drivebase.Max_Speed_Multiplier = 0.75;
-      Constants.Drivebase.Max_Speed = 12.325;
-    }
-    if (RobotContainer.driverXbox.getRawButton(5) == false && RobotContainer.driverXbox.getRawButton(6) == true){
-      System.out.println("MedSpd");
-      //drivebase.maximumSpeed = Units.feetToMeters(12.325);
-      //Constants.Drivebase.Max_Speed_Multiplier = 0.75;
-      Constants.Drivebase.Max_Speed = 12.325;
-    }
-    if (RobotContainer.driverXbox.getRawButton(5) == false && (RobotContainer.driverXbox.getRawButton(6) == false)){
-      //drivebase.maximumSpeed = Units.feetToMeters(10.875);
-      //Constants.Drivebase.Max_Speed_Multiplier = 0.5;
-      Constants.Drivebase.Max_Speed = 10.875;
-    }
   }
 
   @Override

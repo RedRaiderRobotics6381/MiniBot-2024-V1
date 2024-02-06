@@ -5,36 +5,24 @@
 package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
-//import edu.wpi.first.math.geometry.Pose2d;
-//import edu.wpi.first.math.geometry.Rotation2d;
-//import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-//import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AprilTagConstants;
-// import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Vision.DriveToAprilTagPosCmd;
 import frc.robot.commands.Vision.DriveToObjectCmd;
-//import frc.robot.commands.Vision.LLDriveToAprilTagPosCmd;
-//import frc.robot.commands.Vision.LLDriveToObjectCmd;
-// import frc.robot.commands.swervedrive.auto.AutoBalanceCommand;
-//import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
-//import frc.robot.commands.swervedrive.drivebase.AbsoluteFieldDriveAng;
-//import frc.robot.commands.swervedrive.drivebase.AbsoluteDriveAdv;
-// import frc.robot.subsystems.Secondary.ArmIntakeSubsystem;
-// import frc.robot.subsystems.Secondary.ArmRotateSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
+
+
 import java.io.File;
-//import java.util.function.Supplier;
 
 import org.photonvision.PhotonCamera;
 
@@ -57,12 +45,8 @@ public class RobotContainer
 
   public static XboxController driverXbox = new XboxController(0);
   public static XboxController engineerXbox = new XboxController(1);
-  //private final Supplier<Pose2d> poseProvider = drivebase::getPose;
-
+  
   private final SendableChooser<Command> autoChooser;
-
-  // ArmIntakeSubsystem armIntakeSubsystem = new ArmIntakeSubsystem();
-  // ArmRotateSubsystem armRotateSubsystem = new ArmRotateSubsystem();
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -88,14 +72,20 @@ public class RobotContainer
     // left stick controls translation
     // right stick controls the angular velocity of the robot
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND)*.75,
-        () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND)*.75,
-        () -> MathUtil.applyDeadband(-driverXbox.getRawAxis(4), OperatorConstants.RIGHT_X_DEADBAND)*.75);
+        () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND) * 
+                                                             Constants.Drivebase.Max_Speed_Multiplier,
+        () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND) *
+                                                             Constants.Drivebase.Max_Speed_Multiplier,
+        () -> MathUtil.applyDeadband(-driverXbox.getRawAxis(4), OperatorConstants.RIGHT_X_DEADBAND) *
+                                                                Constants.Drivebase.Max_Speed_Multiplier);
 
     Command driveFieldOrientedDirectAngleSim = drivebase.simDriveCommand(
-        () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> MathUtil.applyDeadband(driverXbox.getRawAxis(4), OperatorConstants.RIGHT_X_DEADBAND));
+        () -> MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND) * 
+                                                             Constants.Drivebase.Max_Speed_Multiplier,
+        () -> MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND) *
+                                                             Constants.Drivebase.Max_Speed_Multiplier,
+        () -> MathUtil.applyDeadband(-driverXbox.getRawAxis(4), OperatorConstants.RIGHT_X_DEADBAND) *
+                                                                Constants.Drivebase.Max_Speed_Multiplier);
 
     drivebase.setDefaultCommand(
         !RobotBase.isSimulation() ? driveFieldOrientedAnglularVelocity : driveFieldOrientedDirectAngleSim);
@@ -131,37 +121,28 @@ public class RobotContainer
 
 
     new JoystickButton(driverXbox, 4).onTrue((new InstantCommand(drivebase::zeroGyro)));
-
-
-    // new JoystickButton(engineerXbox, 1).onTrue(armRotateSubsystem.rotatePosCommand(ArmConstants.posDrive)); // 180 is vertical 
-    // new JoystickButton(engineerXbox, 4).onTrue(armRotateSubsystem.rotatePosCommand(ArmConstants.posIntake)); //90 is horizontal 
     
-    // new JoystickButton(engineerXbox,3 ).whileTrue(new ArmIntakeInCmd(armIntakeSubsystem));
-    // new JoystickButton(engineerXbox,3 ).whileTrue(armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedIn));
-    // new JoystickButton(engineerXbox, 3).onFalse(armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedHold));
-    // new JoystickButton(engineerXbox,2 ).whileTrue(armIntakeSubsystem.ArmIntakeCmd(ArmConstants.intakeSpeedOut));
-    // new JoystickButton(engineerXbox, 2).onFalse(armIntakeSubsystem.ArmIntakeCmd(0));
+    if (RobotContainer.driverXbox.getRawButton(5) == true && RobotContainer.driverXbox.getRawButton(6) == true){
+      System.out.println("HighSpd");
+      Constants.Drivebase.Max_Speed_Multiplier = 1;
+    }
+    if (RobotContainer.driverXbox.getRawButton(5) == true && RobotContainer.driverXbox.getRawButton(6) == false){
+      System.out.println("MedSpd");
+      Constants.Drivebase.Max_Speed_Multiplier = 0.75;
+    }
+    if (RobotContainer.driverXbox.getRawButton(5) == false && RobotContainer.driverXbox.getRawButton(6) == true){
+      System.out.println("MedSpd");
+      Constants.Drivebase.Max_Speed_Multiplier = 0.75;
+    }
+    if (RobotContainer.driverXbox.getRawButton(5) == false && (RobotContainer.driverXbox.getRawButton(6) == false)){
+      Constants.Drivebase.Max_Speed_Multiplier = 0.5;
+    }
 
-    //new JoystickButton(engineerXbox,7 ).whileTrue(new DriveGyro180Cmd(swerveSubsystem));
-
-    // new JoystickButton(driverXbox, 5).whileTrue(new LLDriveToObjectCmd(drivebase, 0));
-    // new JoystickButton(driverXbox, 5).whileTrue(new LLDriveToAprilTagPosCmd(drivebase, 0, 7));
-    // new JoystickButton(driverXbox, 6).whileTrue(new LLDriveToAprilTagPosCmd(drivebase, 0, 7));
     // new JoystickButton(driverXbox, 5).whileTrue(new DriveToAprilTagPosCmd(photonCamera,
     //                                                                                    drivebase,
-    //                                                                                    poseProvider,
     //                                                                                    0,
-    //                                                                                    11,
-    //                                                                                    60.0,
-    //                                                                                    0.0,
-    //                                                                                    0.0));
-    new JoystickButton(driverXbox, 5).whileTrue(new DriveToAprilTagPosCmd(photonCamera,
-                                                                                       drivebase,
-                                                                                       0,
-                                                                                       1));
+    //                                                                                    1));
     
-    //new JoystickButton(driverXbox, 4).onTrue((new InstantCommand(drivebase::zeroGyro)));
-    //new JoystickButton(driverXbox, 3).onTrue(new InstantCommand(drivebase::addFakeVisionReading));
     // new JoystickButton(driverXbox,
     //                    2).whileTrue(
     //     Commands.deferredProxy(() -> drivebase.driveToPose(

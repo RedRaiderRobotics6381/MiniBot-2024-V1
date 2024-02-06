@@ -307,7 +307,6 @@ public Command sysIdAngleMotorCommand() {
   @Override
   public void periodic()
   {
-    swerveDrive.setMaximumSpeed(maximumSpeed);
   }
 
   @Override

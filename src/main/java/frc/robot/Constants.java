@@ -30,13 +30,13 @@ public final class Constants
     public static final PIDConstants ANGLE_PID   = new PIDConstants(1.4, 0.15, 0.2);
   }
 
-
   public static final class Drivebase
   {
 
     // Hold time on motor brakes when disabled
     public static final double WHEEL_LOCK_TIME = 10;
-    public static double Max_Speed = 7.25;//14.5;
+    public static double Max_Speed = 14.5;
+    public static double Max_Speed_Multiplier = 1.0;
   }
 
   public static class OperatorConstants
@@ -47,21 +47,9 @@ public final class Constants
     public static final double LEFT_Y_DEADBAND  = 0.01;
     public static final double RIGHT_X_DEADBAND = 0.01;
     public static final double TURN_CONSTANT    = 6;
+
   }
   
-  // public static final class ArmConstants {
-  //   public static final int kArmRotateMotor = 13;
-  //   public static final int kManipulatorIntakeMotorL = 14;
-  //   public static final int kManipulatorIntakeMotorR = 15;
-  //   public static final int kMotorPort = 4;
-
-  //   public static final double intakeSpeedOut = 1.00;
-  //   public static final double intakeSpeedIn = 0.50;
-  //   public static final double intakeSpeedHold = 0.062;
-  //   public static final double posOffset = 72.5;
-  //   public static final double posDrive = 190; //Was 200 see note in ArmRotateSubsystem.java
-  //   public static final double posIntake = 90; //Was 132.5 see note in ArmRotateSubsystem.java
-  // }
   public static final class AprilTagConstants {
   public static int ampID = 0;
   public static int speakerID = 0;
